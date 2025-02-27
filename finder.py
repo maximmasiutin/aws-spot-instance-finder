@@ -129,7 +129,7 @@ def get_single_cheapest(instance_table):
 all_instances = get_instance_types()
 
 regions = []
-if arg_regions is None or len(arg_regions) == 1 and arg_regions[0] is 'all':    
+if arg_regions is None or len(arg_regions) == 1 and arg_regions[0] == 'all':    
     regions = get_aws_regions()
 else:
     regions = arg_regions

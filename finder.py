@@ -21,6 +21,10 @@ from filecache import filecache
 
 urllib3.disable_warnings()
 
+headers=['Instance Type', 'Availability Zone', 'Price', 'vCPUs', 'Ram']
+
+headers_description = '; '.join([f"{i+1} - {header}" for i, header in enumerate(headers)])
+
 parser = argparse.ArgumentParser(description='AWS Spot Instance Finder', epilog='Author: andrew.cranston@gmail.com')
 parser.add_argument('-c', '--cpu', type=int, default=32, help='Minimum number of vCPUs')
 parser.add_argument('-m', '--mem', type=int, default=256, help='Minimum amount of memory')
@@ -28,6 +32,7 @@ parser.add_argument('--region', type=str, default='all', help='Specify single re
 parser.add_argument('--cheapest', action='store_true', help='Display a table of cheapest prices for all matching instances')
 parser.add_argument('--single', action='store_true', help='Display the single cheapest spot price matching the instance requirements')
 parser.add_argument('--product', type=str, default='Linux/UNIX', help='The product to search for, defaults to \'Linux/UNIX\'')
+parser.add_argument('--sort-column', type=int, default=0, help='Header index (1-based) to sort by. Default is 0 (do not sort). Valid values are: '+headers_description+'.')
 
 args = parser.parse_args()
 
@@ -151,5 +156,8 @@ if run_mode == 'cheapest':
 if run_mode == 'single cheapest':
     result_table = get_single_cheapest(instance_table)
 
-print(tabulate(result_table, headers=['Instance Type', 'Availability Zone', 'Price', 'vCPUs', 'Ram'], tablefmt="orgtbl"))
+if args.sort_column > 0:
+    result_table.sort(key=lambda x: float(x[args.sort_column - 1]))
+
+print(tabulate(result_table, headers=headers, tablefmt="orgtbl"))
 print('\n')

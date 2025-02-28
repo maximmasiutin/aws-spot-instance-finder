@@ -21,6 +21,12 @@ optional arguments:
 Author: andrew.cranston@gmail.com
 ```
 
+## Prerequisites ##
+
+You should be authenticated on AWS: there should be a profile `[default]`
+configured in the `~/.aws/credentials`, otherwise the program may give an exception error
+"Unable to locate credentials". You can run `aws configure` to provide authentication data.
+
 ## Quick Usage ##
 
 <b>Find the single cheapest price for an instance with more than 48 vCPUs and 256GB of ram:</b>

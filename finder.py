@@ -27,7 +27,7 @@ parser.add_argument('-m', '--mem', type=int, default=256, help='Minimum amount o
 parser.add_argument('--region', type=str, default='all', help='Specify single region, or \'all\'')
 parser.add_argument('--cheapest', action='store_true', help='Display a table of cheapest prices for all matching instances')
 parser.add_argument('--single', action='store_true', help='Display the single cheapest spot price matching the instance requirements')
-parser.add_argument('--product', type=str, default='Linux/UNIX', help='The product to search for, defaults to \'Linux/UNIX\'')
+parser.add_argument('--profile', type=str, default=None, help='AWS profile name to use')
 
 args = parser.parse_args()
 
@@ -36,6 +36,10 @@ min_ram = args.mem
 product_desc = args.product
 run_mode = 'single cheapest' if args.single else 'cheapest' if args.cheapest else 'all'
 arg_regions = args.region.split(',')
+aws_profile = args.profile
+
+# Create a boto3 session using the provided profile if specified
+session = boto3.Session(profile_name=aws_profile) if aws_profile else boto3.Session()
 
 print(f'AWS Spot Instance Finder')
 print(f'Finding {run_mode} instance(s) with {min_cores} vCPUs and {min_ram}gb ram.\n')
@@ -54,7 +58,7 @@ def get_instance_types():
 
 @filecache(24 * 60 * 60)
 def get_aws_regions():
-    botoclient = boto3.client('ec2', 'us-east-1', verify=False)
+    botoclient = session.client('ec2', 'us-east-1', verify=False)
     regions = [region['RegionName'] for region in botoclient.describe_regions()['Regions']]
     return regions
 
@@ -67,12 +71,10 @@ def query_regions(instances, regions, cores, ram):
 
     for x in regions:
         print(".", flush=True, end = '')
-        testconn = boto3.client('ec2', region_name=x, verify=False)
+        testconn = session.client('ec2', region_name=x, verify=False)
 
         azquery = testconn.describe_availability_zones()
         azcount = len( azquery['AvailabilityZones'] )
-
-
 
         response = testconn.describe_spot_price_history(
             InstanceTypes=instance_types,

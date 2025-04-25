@@ -21,6 +21,11 @@ optional arguments:
 Author: andrew.cranston@gmail.com
 ```
 
+## Prerequisites ##
+```
+python -m pip install -r requirements.txt 
+```
+
 ## Quick Usage ##
 
 <b>Find the single cheapest price for an instance with more than 48 vCPUs and 256GB of ram:</b>
